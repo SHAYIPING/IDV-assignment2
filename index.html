@@ -1,1 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Assignment 2 — 10×5 SVG Effects</title>
+
+<style>
+  html, body {
+    background: #fff;               /* 必须纯白背景 */
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    color: #111;
+  }
+
+  .wrap {
+    max-width: 1200px;
+    margin: 32px auto;
+    padding: 0 16px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #555;
+    margin-bottom: 24px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+
+  th {
+    background: #f8fafc;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+  }
+
+  td {
+    border-bottom: 1px solid #f1f5f9;
+    height: 120px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+  }
+
+  /* 5种效果 */
+  .mirror  { transform: scaleX(-1); transform-origin: center center; }
+  .rot180  { transform: rotate(180deg); transform-origin: center center; }
+  .squash  { transform: scaleY(0.5); transform-origin: center center; }
+  .gray    { filter: grayscale(100%); }
+
+  /* 轻微悬浮效果，可选 */
+  td:hover { background: #f9fafb; transition: background 0.2s; }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Assignment 2 — 10 SVG × 5 Effects</h1>
+    <p>Each row = one SVG. Columns: Original, Mirrored, Rotated 180°, Vertically Squashed 50%, Grayscale.</p>
+
+    <table id="grid">
+      <thead>
+        <tr>
+          <th>Original</th>
+          <th>Left–Right Mirrored</th>
+          <th>Rotated 180°</th>
+          <th>Vertically Squashed 50%</th>
+          <th>Grayscale</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+<script>
+  /* 10 个美观 SVG 文件 */
+  const files = [
+    "11-compass.svg","12-paperplane.svg","13-coffee.svg","14-pin.svg","15-sneaker.svg",
+    "16-feather.svg","17-mountain-sun.svg","18-ribbon.svg","19-flower-side.svg","20-headset-mic.svg"
+  ];
+
+  const tbody = document.querySelector("#grid tbody");
+
+  for (const f of files) {
+    const tr = document.createElement("tr");
+    for (const cls of ["orig", "mirror", "rot180", "squash", "gray"]) {
+      const td = document.createElement("td");
+      const img = document.createElement("img");
+      img.src = `svgs/${f}`;
+      img.alt = f;
+      if (cls !== "orig") img.className = cls;
+      td.appendChild(img);
+      tr.appendChild(td);
+    }
+    tbody.appendChild(tr);
+  }
+</script>
+
+</body>
+</html>
 
