@@ -6,88 +6,86 @@
 <title>Assignment 2 — 10×5 SVG Effects</title>
 
 <style>
-  html, body {
-    background: #fff;               /* 必须纯白背景 */
-    margin: 0;
-    font-family: "Segoe UI", Arial, sans-serif;
-    color: #111;
+  :root{
+    --bg:#ffffff;         /* 纯白背景 */
+    --ink:#111827;
+    --muted:#6b7280;
+    --line:#e5e7eb;
+    --line-2:#f3f4f6;
+    --head:#f8fafc;
+    --shadow:0 6px 20px rgba(0,0,0,.06);
+    --radius:14px;
+  }
+  html,body{background:var(--bg); margin:0; color:var(--ink); font-family:ui-sans-serif, -apple-system, Segoe UI, Roboto, Arial, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;}
+  .wrap{max-width:1200px; margin:36px auto; padding:0 16px;}
+  h1{margin:0 0 8px; font-size:24px; font-weight:800; letter-spacing:.2px;}
+  p.desc{margin:0 0 22px; color:var(--muted);}
+
+  /* 表格外层卡片 */
+  .card{background:#fff; border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden;}
+
+  table{width:100%; border-collapse:separate; border-spacing:0; table-layout:fixed;}
+  thead th{
+    position:sticky; top:0; z-index:1;
+    background:var(--head);
+    color:#334155;
+    font-size:13px; font-weight:700; text-align:center;
+    padding:14px 8px; border-bottom:1px solid var(--line);
   }
 
-  .wrap {
-    max-width: 1200px;
-    margin: 32px auto;
-    padding: 0 16px;
+  tbody td{
+    border-bottom:1px solid var(--line-2);
+    text-align:center; vertical-align:middle;
+    padding:14px 8px; height:140px;
   }
+  tbody tr:nth-child(even){ background:#fcfcfd; }     /* 隔行底色 */
 
-  h1 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 12px;
+  /* 单元格里的缩略图与标题 */
+  .thumb{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .thumb img{
+    width:86px; height:86px; object-fit:contain; display:block;
+    transition:transform .15s ease;
   }
+  tbody td:hover .thumb img{ transform:translateY(-2px); }
 
-  p {
-    color: #555;
-    margin-bottom: 24px;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
-
-  th {
-    background: #f8fafc;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 10px;
-    border-bottom: 1px solid #e2e8f0;
-    text-align: center;
-  }
-
-  td {
-    border-bottom: 1px solid #f1f5f9;
-    height: 120px;
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  img {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-    display: block;
-    margin: 0 auto;
+  .cap{
+    font-size:12px; line-height:1; color:var(--muted);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    max-width:120px;
   }
 
   /* 5种效果 */
-  .mirror  { transform: scaleX(-1); transform-origin: center center; }
-  .rot180  { transform: rotate(180deg); transform-origin: center center; }
-  .squash  { transform: scaleY(0.5); transform-origin: center center; }
-  .gray    { filter: grayscale(100%); }
+  .mirror { transform:scaleX(-1); transform-origin:center center; }
+  .rot180 { transform:rotate(180deg); transform-origin:center center; }
+  .squash { transform:scaleY(0.5); transform-origin:center center; }
+  .gray   { filter:grayscale(100%); }
 
-  /* 轻微悬浮效果 */
-  td:hover { background: #f9fafb; transition: background 0.2s; }
+  /* 小屏时可横向滚动（列数固定为5不改变） */
+  .scroll{overflow:auto;}
+  .scroll::-webkit-scrollbar{height:10px}
+  .scroll::-webkit-scrollbar-thumb{background:#e2e8f0;border-radius:999px}
 </style>
 </head>
 
 <body>
   <div class="wrap">
     <h1>Assignment 2 — 10 SVG × 5 Effects</h1>
-    <p>Each row = one SVG. Columns: Original, Mirrored, Rotated 180°, Vertically Squashed 50%, Grayscale.</p>
+    <p class="desc">Each row = one SVG. Columns: Original, Mirrored, Rotated 180°, Vertically Squashed 50%, Grayscale.</p>
 
-    <table id="grid">
-      <thead>
-        <tr>
-          <th>Original</th>
-          <th>Left–Right Mirrored</th>
-          <th>Rotated 180°</th>
-          <th>Vertically Squashed 50%</th>
-          <th>Grayscale</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+    <div class="card scroll">
+      <table id="grid" aria-label="SVG effects table">
+        <thead>
+          <tr>
+            <th>Original</th>
+            <th>Left–Right Mirrored</th>
+            <th>Rotated 180°</th>
+            <th>Vertically Squashed 50%</th>
+            <th>Grayscale</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
   </div>
 
 <script>
@@ -97,23 +95,34 @@
     "6-feather.svg","7-mountain-sun.svg","8-camera.svg","9-flower-side.svg","10-headset-mic.svg"
   ];
 
+  /* 生成 10×5 表格，并在每个单元格下显示文件名作为小标题 */
   const tbody = document.querySelector("#grid tbody");
+  const effects = ["orig","mirror","rot180","squash","gray"];
 
-  for (const f of files) {
+  files.forEach(f=>{
     const tr = document.createElement("tr");
-    for (const cls of ["orig", "mirror", "rot180", "squash", "gray"]) {
-      const td = document.createElement("td");
+    effects.forEach(cls=>{
+      const td  = document.createElement("td");
+      const box = document.createElement("div");
+      box.className = "thumb";
+
       const img = document.createElement("img");
       img.src = `svgs/${f}`;
       img.alt = f;
-      if (cls !== "orig") img.className = cls;
-      td.appendChild(img);
+      if(cls!=="orig") img.className = cls;
+
+      const cap = document.createElement("div");
+      cap.className = "cap";
+      cap.textContent = f.replace(/\.\w+$/,'');  // 去掉扩展名
+
+      box.appendChild(img);
+      box.appendChild(cap);
+      td.appendChild(box);
       tr.appendChild(td);
-    }
+    });
     tbody.appendChild(tr);
-  }
+  });
 </script>
 
 </body>
 </html>
-
